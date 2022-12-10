@@ -44,7 +44,7 @@ class Login(Resource):
             # 비밀번호 틀림
             return {'result': 'login_error'}, 500
         else:
-            login_user(user_data)
+            login_user(user_data, remember = True)
             # 로그인 진행
             return {'result': 'success'}
 
@@ -76,6 +76,6 @@ class Register(Resource):
             db.session.add(user)
             db.session.commit()
             #회원가입 성공
-            return {'result': 'success'}, 200
+            return {'result': 'success', 'token': user}, 200
         else:
             return {'result': 'id_already_exists'}, 202
