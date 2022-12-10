@@ -19,7 +19,7 @@ max_page = 13
 @Test.route('/<int:page>')
 @Test.doc(params={'page': '어떤 페이지에 해당하는 심리 테스트 문항을 볼 것인지 나타내는 페이지 넘버'})
 class TestPage(Resource):
-    @login_required
+    # @login_required
     @Test.response(200, 'Success', question_fields)
     @Test.response(500, 'fail')
     def get(self, page):

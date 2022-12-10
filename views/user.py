@@ -51,7 +51,7 @@ class Login(Resource):
 
 @UserManagement.route('/logout')
 class Logout(Resource):
-    @login_required
+    # @login_required
     def get(self):
         """로그인 되어있는 경우에 로그아웃하고 메인 페이지로 돌아가기"""
         session.clear()
@@ -76,6 +76,6 @@ class Register(Resource):
             db.session.add(user)
             db.session.commit()
             #회원가입 성공
-            return {'result': 'success', 'token': user}, 200
+            return {'result': 'success'}, 200
         else:
             return {'result': 'id_already_exists'}, 202

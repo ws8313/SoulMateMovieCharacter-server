@@ -80,7 +80,7 @@ class ShowResult(Resource):
         db.session.add(answer)
         
 
-    @login_required
+    # @login_required
     @Result.response(200, 'Success', mbti_fields)
     def get(self):
         """
@@ -93,7 +93,7 @@ class ShowResult(Resource):
         }, 200
 
 
-    @login_required
+    # @login_required
     @Result.expect(answers_fields)
     @Result.response(200, 'success')
     @Result.response(500, 'fail')
@@ -132,7 +132,7 @@ class ShowResult(Resource):
         return {"post": "success"}
 
 
-@login_required
+# @login_required
 @Result.route('/top10')
 class Top10Movies(Resource):
     def get_genre(self, movie_id):

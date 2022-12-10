@@ -122,7 +122,7 @@ def MovieList(session_type):
 @MbtiCharacter.route('/<int:compatible>')
 @MbtiCharacter.doc(params={'compatible': '궁합여부'})
 class UserCharacter(Resource):
-    @login_required
+    # @login_required
     @MbtiCharacter.response(200, 'Success', matching_fields)
     def get(self, compatible):
         """
@@ -140,7 +140,7 @@ class UserCharacter(Resource):
 @MbtiCharacter.route('/refresh/<int:compatible>')
 @MbtiCharacter.doc(params={'compatible': '궁합여부'})
 class UserCharacter(Resource):
-    @login_required
+    # @login_required
     @MbtiCharacter.response(200, 'Success', matching_fields)
     def get(self, compatible):
         """
@@ -157,7 +157,7 @@ class UserCharacter(Resource):
 
 @MbtiCharacter.route('/movie_list')
 class MovieSatisfactionList(Resource):
-    @login_required
+    # @login_required
     @MbtiCharacter.expect(satisfaction_fields)
     @MbtiCharacter.response(200, 'success')
     @MbtiCharacter.response(500, 'fail')
@@ -183,7 +183,7 @@ class MovieSatisfactionList(Resource):
 @MbtiCharacter.route('/movie_list/<string:mbti>/<int:compatible>')
 @MbtiCharacter.doc(params={'mbti': '등장한 영화 리스트를 볼 캐릭터의 mbti', 'compatible': '궁합여부' })
 class MovieListWithCharacters(Resource):
-    @login_required
+    # @login_required
     @MbtiCharacter.response(200, 'Success', total_character_N_movies_fields)
     @MbtiCharacter.response(500, 'fail')
     def get(self, mbti, compatible):
