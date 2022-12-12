@@ -33,8 +33,8 @@ class Login(Resource):
     @UserManagement.response(202, 'already_exists')
     @UserManagement.response(500, 'fail')
     def post(self):
-        user_id = request.json.get('login_id')
-        user_pw = request.json.get('login_pw')
+        user_id = request.get_json('login_id')
+        user_pw = request.get_json('login_pw')
 
         user_data = User.query.filter(User.id == user_id).first()
         if not user_data:
@@ -46,8 +46,9 @@ class Login(Resource):
         else:
             login_user(user_data, remember = True)
             token = bcrypt.generate_password_hash(user_pw)
+            print(token)
             # 로그인 진행
-            return {'result': 'success', 'token': token}
+            return {'result': 'success', 'token': b'token'}
 
 
 @UserManagement.route('/logout')
@@ -66,13 +67,13 @@ class Register(Resource):
     @UserManagement.response(200, 'success')
     @UserManagement.response(500, 'fail')
     def post(self):
-        user_data = User.query.filter(User.id == request.json.get('id')).first()
+        user_data = User.query.filter(User.id == request.get_json('id')).first()
         if not user_data:
-            if not request.json.get('pw')==request.json.get('pw2'):
+            if not request.get_json('pw')==request.get_json('pw2'):
                 #비밀번호 불일치
                 return {'result': 'unmatched_pw'}, 500
-            user_id = request.json.get('id')
-            pw_hash = bcrypt.generate_password_hash(request.json.get('pw'))
+            user_id = request.get_json('id')
+            pw_hash = bcrypt.generate_password_hash(request.get_json('pw'))
             user = User(user_id, pw_hash, None)
             db.session.add(user)
             db.session.commit()
