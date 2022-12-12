@@ -45,8 +45,9 @@ class Login(Resource):
             return {'result': 'login_error'}, 500
         else:
             login_user(user_data, remember = True)
+            token = bcrypt.generate_password_hash(user_pw)
             # 로그인 진행
-            return {'result': 'success'}
+            return {'result': 'success', 'token': token}
 
 
 @UserManagement.route('/logout')
