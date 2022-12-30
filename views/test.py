@@ -1,6 +1,7 @@
 from flask_login.utils import login_required
 from flask_restx import Resource, Namespace, fields
 from models import *
+from flask_jwt_extended import *
 
 Test = Namespace(
     name='Test',
@@ -20,6 +21,7 @@ max_page = 13
 @Test.doc(params={'page': '어떤 페이지에 해당하는 심리 테스트 문항을 볼 것인지 나타내는 페이지 넘버'})
 class TestPage(Resource):
     # @login_required
+    @jwt_required()
     @Test.response(200, 'Success', question_fields)
     @Test.response(500, 'fail')
     def get(self, page):
@@ -27,6 +29,7 @@ class TestPage(Resource):
         page 에 해당하는 문제 데이터 전달,
         1 페이지는 question에만 데이터 있고(스토리 설명) options는 null입니다.
         """
+        cur_user = get_jwt_identity()
         
         if page > max_page or page < min_page:
             return {'get': 'There is no '+str(page)+" question & options"}, 500
@@ -39,5 +42,6 @@ class TestPage(Resource):
         return {
             'question': question.content,
             'img_url': question.img_url,
-            'options': options
+            'options': options,
+            'cur_user': cur_user
         }

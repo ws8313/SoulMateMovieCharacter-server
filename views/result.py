@@ -4,6 +4,7 @@ from models import *
 from flask_login import login_required, current_user
 from collections import Counter
 from sqlalchemy import func
+from flask_jwt_extended import *
 
 
 Result = Namespace(
@@ -25,6 +26,12 @@ same_mbti_top10_fields = Result.model('Same MBTI Top 10 Movies', {
     'word_cloud': fields.String(description="워드 클라우드 link")
 })
 
+def row2dict(row):
+    dictionary = {}
+    for column in row.__table__.columns:
+        dictionary[column.name] = str(getattr(row, column.name))
+
+    return dictionary
 
 @Result.route('/')
 class ShowResult(Resource):
@@ -39,7 +46,7 @@ class ShowResult(Resource):
         """
         user id가 current_user id와 같은 user 객체 반환
         """
-        return User.query.filter(User.id == current_user.id).first()
+        return User.query.filter(User.id == current_user).first()
 
     def result_list_to_mbti_indicator(self, answers):
         """
@@ -81,19 +88,22 @@ class ShowResult(Resource):
         
 
     # @login_required
+    @jwt_required()
     @Result.response(200, 'Success', mbti_fields)
     def get(self):
         """
         사용자 mbti 전달
         """
         # 테스트 결과 -> 사용자 mbti 전달
-        user = User.query.filter(User.id == current_user.id).first()
+        current_user = get_jwt_identity()
+        user = User.query.filter(User.id == current_user).first()
         return {
             'user_mbti': user.mbti
         }, 200
 
 
     # @login_required
+    @jwt_required()
     @Result.expect(answers_fields)
     @Result.response(200, 'success')
     @Result.response(500, 'fail')
@@ -107,6 +117,8 @@ class ShowResult(Resource):
         answers = request.json.get('answers')
         user_mbti = request.json.get('user_mbti')
 
+        current_user = get_jwt_identity()
+
         # answers가 None이 아니고 user_mbti가 None
         if answers and user_mbti is None:
             mbti_indicators = self.result_list_to_mbti_indicator(answers)
@@ -116,14 +128,21 @@ class ShowResult(Resource):
         
             user_mbti = self.calculate_mbti(mbti_indicators)
             
-            if current_user.is_authenticated:
+            if current_user:
                 answers = self.answer_list_to_str(answers)
-                self.store_answer(current_user.id, answers)
+                self.store_answer(current_user, answers)
             else:
                 print("current_user is None")
 
+            answers = self.answer_list_to_str(answers)
+            self.store_answer(current_user, answers)
+
         # 테스트를 진행했든, 바로 user_mbti를 입력 받았든 알게 된 user_mbti를 db에 저장
-        user = self.get_user()
+        # user = self.get_user()
+        # print(user)
+
+        user = User.query.filter(User.id == current_user)
+
         user.mbti = user_mbti
 
         db.session.commit()
@@ -133,6 +152,7 @@ class ShowResult(Resource):
 
 
 # @login_required
+# @jwt_required()
 @Result.route('/top10')
 class Top10Movies(Resource):
     def get_genre(self, movie_id):
@@ -178,6 +198,7 @@ class Top10Movies(Resource):
         
         return total_movies_info
 
+    @jwt_required()
     @Result.response(200, 'Success', same_mbti_top10_fields)
     @Result.response(500, 'fail')
     def get(self):
@@ -187,9 +208,13 @@ class Top10Movies(Resource):
         3. 사용자와 같은 유형의 캐릭터가 나오는 영화 중 네이버 평점 top 10 영화 줄거리로 만든 워드 클라우드 전달하는 api.
         * 영화 정보 : 한글 제목(str), 영어 제목(str), 이미지 url(str), 개봉일(int), 감독(str), 평점(float), 스토리(str), 런타임(int), 장르(str list)
         """
+
+        current_user = get_jwt_identity()
+        user = User.query.filter(User.id == current_user).first()
+        print(user.mbti)
         
         return {
-            'top10_for_same_mbti_users': self.top10_to_same_mbti_user(current_user.mbti),
-            'top10_in_naver': self.top10_in_naver_same_mbti_char(current_user.mbti),
-            'word_cloud_src': "img/word_clouds/wordcloud_" + str(current_user.mbti)+".jpg"
+            'top10_for_same_mbti_users': self.top10_to_same_mbti_user(user.mbti),
+            'top10_in_naver': self.top10_in_naver_same_mbti_char(user.mbti),
+            'word_cloud_src': "img/word_clouds/wordcloud_" + str(user.mbti)+".jpg"
         }

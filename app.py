@@ -2,6 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_jwt_extended import *
 from flask_restx import Api
 from flask_cors import CORS
 
@@ -10,15 +11,17 @@ import config
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
+jwt = JWTManager()
 
 # 애플리케이션 팩토리
 # flask run으로 실행해야 함.
 def create_app():
     app = Flask(__name__)
-    cors = CORS(app, resources={r"*": {"origins": ["*"]}},
+    cors = CORS(app, resources={r"*": {"origins": ["http://localhost:3000"]}},
         supports_credentials=True,)
     app.config.from_object(config)
     login_manager.init_app(app)
+    jwt.init_app(app)
 
     authorizations = {
         "basicAuth" : {

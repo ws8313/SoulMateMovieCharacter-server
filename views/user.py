@@ -1,7 +1,9 @@
 from flask import request, session
 from flask_restx import Resource, Namespace, fields
-from flask_login import login_required, login_user, logout_user
+from flask_login import login_required, login_user, logout_user, current_user
 from app import login_manager
+from app import jwt
+from flask_jwt_extended import *
 from models import *
 from flask_bcrypt import Bcrypt
 
@@ -26,6 +28,8 @@ def load_user(user_id):
     return User.query.filter(User.id == user_id).first()
 
 
+
+
 @UserManagement.route('/login')
 class Login(Resource):
     @UserManagement.expect(login_fields)
@@ -44,9 +48,12 @@ class Login(Resource):
             # 비밀번호 틀림
             return {'result': 'login_error'}, 500
         else:
-            login_user(user_data, remember = True)
+            login_user(user_data)
+            token = create_access_token(identity= user_id, expires_delta= False)
+            print(bcrypt.check_password_hash(user_data.pw, token))
+            print(token)
             # 로그인 진행
-            return {'result': 'success'}
+            return {'result': 'success', 'token': token}
 
 
 @UserManagement.route('/logout')
