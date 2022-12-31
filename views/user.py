@@ -50,8 +50,6 @@ class Login(Resource):
         else:
             login_user(user_data)
             token = create_access_token(identity= user_id, expires_delta= False)
-            print(bcrypt.check_password_hash(user_data.pw, token))
-            print(token)
             # 로그인 진행
             return {'result': 'success', 'token': token}
 
