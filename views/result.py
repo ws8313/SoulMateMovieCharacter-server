@@ -141,7 +141,7 @@ class ShowResult(Resource):
         # user = self.get_user()
         # print(user)
 
-        user = User.query.filter(User.id == current_user)
+        user = User.query.filter(User.id == current_user).first()
 
         user.mbti = user_mbti
 
