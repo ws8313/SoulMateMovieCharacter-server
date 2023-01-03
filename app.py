@@ -17,7 +17,7 @@ jwt = JWTManager()
 # flask run으로 실행해야 함.
 def create_app():
     app = Flask(__name__)
-    cors = CORS(app, resources={r"*": {"origins": ["http://localhost:3000"]}},
+    cors = CORS(app, resources={r"*": {"origins": ["https://soulmate-movie-character.netlify.app"]}},
         supports_credentials=True,)
     app.config.from_object(config)
     login_manager.init_app(app)
