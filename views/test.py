@@ -40,6 +40,7 @@ class TestPage(Resource):
         options = [str(getattr(o, Option.content.name)) for o in options]
         
         return {
+            'id': page,
             'question': question.content,
             'img_url': question.img_url,
             'options': options,
