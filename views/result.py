@@ -211,7 +211,6 @@ class Top10Movies(Resource):
 
         current_user = get_jwt_identity()
         user = User.query.filter(User.id == current_user).first()
-        print(user.mbti)
         
         return {
             'top10_for_same_mbti_users': self.top10_to_same_mbti_user(user.mbti),
